@@ -194,4 +194,4 @@ Press 'q' or Ctrl-C to abort, almost any other key for status
 !august1993$     (acquired_id_rsa)
 Session aborted
 ```
-Note: On HTB keys, this should takes seconds to minutes. Running this on a real RSA key would take days in a VM.
+Note: On HTB keys, this should take seconds to  minutes. Running this on a real RSA key would take days in a VM.
