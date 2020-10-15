@@ -12,22 +12,22 @@ and then follow it up with a service scan of the specific ports that came up as 
 ```
 Command Breakdown:
    nmap: Network exploration tool and security / port scanner
-   -sN: TCP Null scan
+   -sS: TCP SYN scan
    -sV: Probe open ports to determine service/version info
    -p-: Scan all ports
    -p 21,22,80: Scan only ports 21, 22, and 80
 ```
 
 ```console
-user@parrot:~$ sudo nmap -sN -p- 10.10.10.10
+user@parrot:~$ sudo nmap -sS -p- 10.10.10.10
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-07-09 13:30 CDT
 Nmap scan report for 10.10.10.10
 Host is up (0.12s latency).
 Not shown: 65533 closed ports
 PORT   STATE         SERVICE
-21/tcp open|filtered ftp
-22/tcp open|filtered ssh
-80/tcp open|filtered http
+21/tcp open          ftp
+22/tcp open          ssh
+80/tcp open          http
 
 Nmap done: 1 IP address (1 host up) scanned in 8.33 seconds
 
