@@ -15,6 +15,7 @@ Every HTB machine has a similar kill chain:
 Beyond these materials, getting hints for the machines from  
 the [HTB Forum](https://forum.hackthebox.eu/) is a great way to learn and develop your skills.  
 You can also go through retired boxes with [IppSec's videos](https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA).  
-If any of this helped you, feel free to add a respect to my HTB page!
+See anything wrong or think something could be better?  
+Feel free to make a pull request or submit an issue!
  
 [![Conway's profile](https://www.hackthebox.eu/badge/image/69665)](https://www.hackthebox.eu/home/users/profile/69665)
