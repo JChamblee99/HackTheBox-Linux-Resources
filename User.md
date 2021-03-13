@@ -108,12 +108,10 @@ or to generate your own key and add the public key to the user's authorized keys
 ```
 Command Breakdown:
     ssh-keygen: Authentication key generation
-    -t rsa: Specifies the type of key to create
-    -b 4096: Generate a 4096 bit length key
 ```
 
 ```console
-user@parrot:~$ ssh-keygen -t rsa -b 4096
+user@parrot:~$ ssh-keygen
 Generating public/private rsa key pair.
 Enter file in which to save the key (/home/user/.ssh/id_rsa): 
 /home/user/.ssh/id_rsa already exists.
@@ -194,4 +192,4 @@ Press 'q' or Ctrl-C to abort, almost any other key for status
 !august1993$     (acquired_id_rsa)
 Session aborted
 ```
-Note: On HTB keys, this should take seconds to  minutes. Running this on a real RSA key would take days in a VM.
+Note: Currently, ssh2john assumes that the key uses the aes256-cbc cipher, but ssh-keygen defaults to aes256-ctr.
