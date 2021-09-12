@@ -1,21 +1,21 @@
 # Reconnaissance
 
  - [Port Scanning](Reconnaissance.md#port-scanning)
- - [Directory discovery](Reconnaissance.md#directory-discovery)
- - [File discovery](Reconnaissance.md#file-discovery)
- - [Virtual host fuzzing](Reconnaissance.md#virtual-host-fuzzing)
+ - [Directory Discovery](Reconnaissance.md#directory-discovery)
+ - [File Discovery](Reconnaissance.md#file-discovery)
+ - [Virtual Host Fuzzing](Reconnaissance.md#virtual-host-fuzzing)
  
 ## Port Scanning
-Starting off with a straight forward option, we can do a TCP Null scan across every port  
-and then follow it up with a service scan of the specific ports that came up as open.
+Nmap is a great tool for performing network recon, so obviously there are a lot of different ways you can use it.  
+Personally, I tend to use variations of 3 different scans: TCP SYN scan (-sS), version scan (-sV), and throwing everything at the wall (-A).
+
+The TCP SYN scan tends to be pretty quick to scan every port. You won't get much information on services, but getting open ports quickly can allow you to start other scanning and enumeration sooner.
 
 ```
 Command Breakdown:
    nmap: Network exploration tool and security / port scanner
    -sS: TCP SYN scan
-   -sV: Probe open ports to determine service/version info
    -p-: Scan all ports
-   -p 21,22,80: Scan only ports 21, 22, and 80
 ```
 
 ```console
@@ -30,22 +30,34 @@ PORT   STATE         SERVICE
 80/tcp open          http
 
 Nmap done: 1 IP address (1 host up) scanned in 8.33 seconds
+```
 
-user@parrot:~$ sudo nmap -sV -p 21,22,80 10.10.10.10
+A version scan is a great way to quickly grab service versions.
+
+```
+Command Breakdown:
+   nmap: Network exploration tool and security / port scanner
+   -sV: Probe open ports to determine service/version info
+   -p-: Scan all ports
+```
+
+```console
+user@parrot:~$ sudo nmap -sV -p- 10.10.10.10
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-07-09 13:30 CDT
 Nmap scan report for 10.10.10.10
 Host is up (0.12s latency).
-
+Not shown: 65533 closed ports
 PORT   STATE SERVICE VERSION
 21/tcp open  ftp     vsftpd 3.0.3
 22/tcp open  ssh     OpenSSH 7.4p1 Debian 10+deb9u7 (protocol 2.0)
 80/tcp open  http    Apache httpd 2.4.25 ((Debian))
 Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
 
-Nmap done: 1 IP address (1 host up) scanned in 9.44 seconds
+Nmap done: 1 IP address (1 host up) scanned in 32.54 seconds
 ```
 
-Here's an alternative option that reveals a lot more information, but can take a lot longer.
+Want to just get every bit of information? Throw a -A at the wall and see what sticks.  
+This scan can take a while sometimes, so keep that in mind.
 
 ```
 Command Breakdown:
@@ -56,7 +68,7 @@ Command Breakdown:
 ```
 
 ```console
-user@parrot:~$ nmap -A -T4 -p- 10.10.10.10
+user@parrot:~$ nmap -A -T5 -p- 10.10.10.10
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-07-10 17:06 CDT
 Nmap scan report for 10.10.10.10
 Host is up (0.12s latency).
@@ -78,35 +90,12 @@ Nmap done: 1 IP address (1 host up) scanned in 904.62 seconds
 ```
 
 ## Directory Discovery
-There are quite a few tools that will help you find directories and files,  
-and a few that are definitely more specialized for their tasks, but my favorite tool is Web Fuzzer (WFuzz).  
-It's a very versatile tool that allows you to do a lot of heavy lifting.  
-Another good tool for this task is DirB or DirBuster since it automatically spiders into the directores.
+You can find directories and files by searching through the HTML or Javascript, but you can also fuzz for them using wordlists.  
+Parrot and Kali are shipped with wordlists in `/usr/share/wordlists/`.
 
-Your main limitation in these latter phases are often your wordlist;  
-there are quite a few wordlists built into Parrot that can be found  
-in `/usr/share/wordlists/`, but you can also develop a wordlist from the contents of the website if they don't work.
+The most common tools used to fuzz for this information on a website are Dirb/Dirbuster and WFuzz.  
+Personally, I prefer WFuzz since I have more control of what it's doing, but Dirb is great because you can start a scan and it will automatically traverse into directories to scan deeper.
 
-```
-Command Breakdown:
-   cewl: Custom Wordlist Generator
-   -w keywords.txt: The file name to save the wordlist as
-   -m 2: Lower the minimum character count
-   -d 10: Increase the max directories to crawl
-```
-
-```console
-user@parrot:~$ cewl -w keywords.txt -m 2 -d 10 10.10.10.10
-CeWL 5.4.8 (Inclusion) Robin Wood (robin@digi.ninja) (https://digi.ninja/)
-via
-SMS
-chatting
-Tests
-CMS
-...
-```
-
-Once you have your wordlist of choice, you can start fuzzing for the directories.
 ```
 Command Breakdown:
    wfuzz: Web Fuzzer
@@ -143,15 +132,16 @@ Requests/sec.: 67.79651
 
 ## File Discovery
 Very similar to the directory fuzzing, we can do the same thing to find files within the directories but add an extension.  
-One way to do this is just putting a file extension on the end like `FUZZ.txt` but there's a better option.
+One way to do this is just putting a file extension on the end like `FUZZ.txt` but there's a better option.  
+You can specify the normal wordlist, but you can provide a second wordlist to fuzz for the file extension.
 
 ```
 Command Breakdown:
    wfuzz: Web Fuzzer
    --hc 404: Ignore all 404 responses
    -w /usr/share/wordlists/wfuzz/general/big.txt: The wordlist being used
-   -z list,txt-html-php: The list of extensions to test
-   10.10.10.10/FUZZ.FUZ2Z: FUZZ is replaced with the wordlist, and FUZ2Z is replaced with the extension list
+   -z list,txt-html-php: The list of file extensions to test
+   10.10.10.10/FUZZ.FUZ2Z: FUZZ is replaced with the wordlist, and FUZ2Z is replaced with the file extension list
 ```
 
 ```console
@@ -178,9 +168,9 @@ Requests/sec.: 33.64158
 ```
 
 ## Virtual Host Fuzzing
-When you make a request to a website, the request connects to the IP address,  
-but retains the host name within the `Host` header of the request.  
+When you make a request to a website, the request connects to the IP address, but retains the host name within the `Host` header of the request.  
 This allows the website to serve different domain names and subdomains.
+
 ```console
 user@parrot:~$ curl -v google.com 
 *   Trying 172.217.13.174:80...
@@ -192,6 +182,27 @@ user@parrot:~$ curl -v google.com
 > Accept: */*
 ```
 
+If a normal wordlist doesn't work, you could try generating your own wordlist using keywords on the website.
+
+```
+Command Breakdown:
+   cewl: Custom Wordlist Generator
+   -w keywords.txt: The file name to save the wordlist as
+   -m 2: Lower the minimum character count
+   -d 10: Increase the max directories to crawl
+```
+
+```console
+user@parrot:~$ cewl -w keywords.txt -m 2 -d 10 10.10.10.10
+CeWL 5.4.8 (Inclusion) Robin Wood (robin@digi.ninja) (https://digi.ninja/)
+via
+SMS
+chatting
+Tests
+CMS
+...
+```
+
 ```
 Command Breakdown:
    wfuzz: Web Fuzzer
@@ -201,7 +212,7 @@ Command Breakdown:
 ```
 
 ```console
-user@parrot:~$ wfuzz --hh 8193 -w keywords.txt -H "Host: FUZZ.htb"  10.10.10.10
+user@parrot:~$ wfuzz --hw 973 -w keywords.txt -H "Host: FUZZ.htb"  10.10.10.10
 
 ********************************************************
 * Wfuzz 2.4.5 - The Web Fuzzer                         *
