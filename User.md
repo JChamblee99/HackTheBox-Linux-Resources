@@ -17,7 +17,7 @@ Command Breakdown:
 ```
 
 ```console
-www-data@example~$ ls -al /home
+www-data@example:~$ ls -al /home
 total 16
 drwxr-xr-x 1 root root   8 Feb  8 03:18 .
 drwxr-xr-x 1 root root 302 Jul  4 13:10 ..
@@ -34,7 +34,7 @@ Command Breakdown:
 ```
 
 ```console
-www-data@example~$ find /var/ -iname "*credentials*" 2>/dev/null
+www-data@example:~$ find /var/ -iname "*credentials*" 2>/dev/null
 /var/log/sneakydir/Credentials.tar.gz
 ```
 
@@ -51,7 +51,7 @@ Command Breakdown:
 ```
 
 ```console
-www-data@example~$ grep -winr /var/www/ -e "password"
+www-data@example:~$ grep -winr /var/www/ -e "password"
 /var/www/html/login.php:8:        if(Password != 'P@5sw0Rd!'){
 ```
 
@@ -114,9 +114,7 @@ Command Breakdown:
 user@parrot:~$ ssh-keygen
 Generating public/private rsa key pair.
 Enter file in which to save the key (/home/user/.ssh/id_rsa): 
-/home/user/.ssh/id_rsa already exists.
-Enter passphrase (empty for no passphrase): !august1993$
-Enter same passphrase again: !august1993$
+Enter passphrase (empty for no passphrase): 
 Your identification has been saved in /home/user/.ssh/id_rsa
 Your public key has been saved in /home/user/.ssh/id_rsa.pub
 The key fingerprint is:
@@ -151,22 +149,21 @@ user@example:~$ echo "ssh-rsa AAAA ... w== user@parrot" >> /home/user/.ssh/autho
 ```
 
 ### Using an acquired private key
-Once you find a key, you need to set it to read and write for only the user with chmod,  
+Once you find an SSH key, like `id_rsa`, you need to set it to read and write for only the user with chmod,  
 then you can use it with SSH to log directly into the target.
 
 ```console
-user@parrot~$ sudo chmod 600 acquired_id_rsa
-user@parrot~$ ssh -i acquired_id_rsa user@10.10.10.10
+user@parrot:~$ sudo chmod 600 acquired_id_rsa
+user@parrot:~$ ssh -i acquired_id_rsa user@10.10.10.10
 Welcome to Ubuntu 18.04.2 LTS (GNU/Linux 4.15.0-109-generic x86_64)
 Last login: Mon Jul 13 06:09:46 2020 from 10.10.15.2
 user@example:~$ 
 ```
 
 ## Password Cracking
-Since you can take rsa private keys and use them against the target, they're a prime asset to look for,  
-but sometimes they can be password protected. To kill two birds with one stone, I'm going to also cover SSH  
-private keys with the password cracking section. It's easy enough to google other needs and look at `john --list=subformats`.  
-This could just as easily have been a random md5 hash in a database, a very strangely salted hash, or a shadow file entry.
+Since you can take SSH private keys and use them against the target, they're a prime asset to look for,  
+but sometimes they can be password protected. This could just as easily have been an MD5 hash or a shadow file entry.
+If it doesn't automagically detect the right format, then you'll have to check what you can use with `john --list=subformats`.
 
 ```
 Command Breakdown:
@@ -179,8 +176,8 @@ Command Breakdown:
 ```
 
 ```console
-user@parrot~$ /./usr/share/john/ssh2john.py acquired_id_rsa > hash.txt
-user@parrot~$ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt 
+user@parrot:~$ /./usr/share/john/ssh2john.py acquired_id_rsa > hash.txt
+user@parrot:~$ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt 
 Using default input encoding: UTF-8
 Loaded 1 password hash (SSH [RSA/DSA/EC/OPENSSH (SSH private keys) 32/64])
 Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 1 for all loaded hashes
