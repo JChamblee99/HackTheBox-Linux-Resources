@@ -5,12 +5,12 @@
  - [File Upload](Foothold.md#file-upload)
  
 ## Metasploit
-Since getting the service versions was a part of the reconnaissance phase, it should be taken advantage of.  
-Google the version of any services you find and see if there are any vulnerabilities.  
+Since getting the service versions was a part of the reconnaissance phase, it should be taken advantage of. 
+Google the version of any services you find and see if there are any vulnerabilities. 
 If you're lucky, there's a Metasploit module that you can use.  
 
-There's a nice [SANS cheatsheet](https://www.sans.org/security-resources/sec560/misc_tools_sheet_v1.pdf) to help use Metasploit though.  
-Here's an example run of an example exploit to put the cheatsheet into perpsective.
+There's a nice [SANS cheatsheet](https://www.sans.org/security-resources/sec560/misc_tools_sheet_v1.pdf) to help use Metasploit.  
+Here's an example exploit to put the cheatsheet into perpsective though.
 ```console
 msf5 > search example
 
@@ -103,7 +103,7 @@ Utilizing a reverse shell is a three step process
     ```
 
 ## File Upload
-If there isn't a common vulnerability to exploit, then you might want to look for a place to upload files.  
+If there isn't a common vulnerability to exploit, then you might want to look for a place to upload files. 
 If you do find a place to upload files, then you should try uploading a PHP reverse shell.
 
 payload.php:
