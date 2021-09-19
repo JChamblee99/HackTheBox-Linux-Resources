@@ -182,56 +182,40 @@ user@parrot:~$ curl -v google.com
 > Accept: */*
 ```
 
-If a normal wordlist doesn't work, you could try generating your own wordlist using keywords on the website.
+For Hack the Box machines, instead of having `Host: google.com`, we'd have something like `Host: box.htb`, 
+where `box.htb` is the domain name of the website. Websites can serve different webpages depending on the domain name using virtual hosts. 
+You can fuzz for domains and subdomains with `FUZZ.box.htb` and `FUZZ.htb`.
 
-```
-Command Breakdown:
-   cewl: Custom Wordlist Generator
-   -w keywords.txt: The file name to save the wordlist as
-   -m 2: Lower the minimum character count
-   -d 10: Increase the max directories to crawl
-```
-
-```console
-user@parrot:~$ cewl -w keywords.txt -m 2 -d 10 10.10.10.10
-CeWL 5.4.8 (Inclusion) Robin Wood (robin@digi.ninja) (https://digi.ninja/)
-via
-SMS
-chatting
-Tests
-CMS
-...
-```
+Among other wordlists, [SecLists](https://github.com/danielmiessler/SecLists) has a really good wordlist dedicated to this task of virtual host fuzzing.
 
 ```
 Command Breakdown:
    wfuzz: Web Fuzzer
    --hw 973: Ignore all responses with exactly 973 words (Used to exclude the default host page)
    -w keywords.txt: The wordlist being used
-   -H "Host: FUZZ.htb": The hostname format that's fuzzed
+   -H "Host: FUZZ.htb": This is used to fuzz for the virtual host
 ```
 
 ```console
-user@parrot:~$ wfuzz --hw 973 -w keywords.txt -H "Host: FUZZ.htb"  10.10.10.10
+user@parrot:~$ wfuzz --hw 973 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-20000.txt -H "Host: FUZZ.htb"  10.10.10.10
 
 ********************************************************
 * Wfuzz 2.4.5 - The Web Fuzzer                         *
 ********************************************************
 
 Target: http://10.10.10.10/
-Total requests: 609
+Total requests: 19966
 
 ===================================================================
 ID           Response   Lines    Word     Chars       Payload
 ===================================================================
 
-000000005:   302        0 L      0 W      0 Ch        "CMS"
+000000082:   302        0 L      0 W      0 Ch        "cms"
 
-Total time: 9.234456
-Processed Requests: 609
-Filtered Requests: 608
-Requests/sec.: 65.94865
-
+Total time: 0
+Processed Requests: 19966
+Filtered Requests: 19961
+Requests/sec.: 0
 ```
 
 If you find a special domain/subdomain and you want to view it yourself,  
