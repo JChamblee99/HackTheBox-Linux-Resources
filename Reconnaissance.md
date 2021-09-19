@@ -186,13 +186,14 @@ For Hack the Box machines, instead of having `Host: google.com`, we'd have somet
 where `box.htb` is the domain name of the website. Websites can serve different webpages depending on the domain name using virtual hosts. 
 You can fuzz for domains and subdomains with `FUZZ.box.htb` and `FUZZ.htb`.
 
-Among other wordlists, [SecLists](https://github.com/danielmiessler/SecLists) has a really good wordlist dedicated to this task of virtual host fuzzing.
+Among other wordlists, [SecLists](https://github.com/danielmiessler/SecLists) has a really good wordlist dedicated to this task of virtual host fuzzing.  
+You'll have to `apt install` or `git clone` the repo to use the wordlists, so the directory will be different.
 
 ```
 Command Breakdown:
    wfuzz: Web Fuzzer
    --hw 973: Ignore all responses with exactly 973 words (Used to exclude the default host page)
-   -w keywords.txt: The wordlist being used
+   -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-20000.txt: The SecLists wordlist being used 
    -H "Host: FUZZ.htb": This is used to fuzz for the virtual host
 ```
 
