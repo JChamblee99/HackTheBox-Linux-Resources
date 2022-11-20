@@ -189,4 +189,3 @@ Press 'q' or Ctrl-C to abort, almost any other key for status
 !august1993$     (acquired_id_rsa)
 Session aborted
 ```
-Note: Currently, ssh2john assumes that the key uses the aes256-cbc cipher, but ssh-keygen defaults to aes256-ctr.
