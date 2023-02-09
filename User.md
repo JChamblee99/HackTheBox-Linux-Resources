@@ -45,13 +45,13 @@ Command Breakdown:
     -w: Word regexp, match only if the entire word matches the search
     -i: Ignore case distinction
     -n: Include line number
-    -r: Read all files under each directory, recursively.
-    /var/www/: Directory to start search
+    -R: Recursively search the directory
+    /var/www/: Directory to search
     -e "password": Search pattern
 ```
 
 ```console
-www-data@example:~$ grep -winr /var/www/ -e "password"
+www-data@example:~$ grep -winR /var/www/ -e "password"
 /var/www/html/login.php:8:        if(Password != 'P@5sw0Rd!'){
 ```
 
