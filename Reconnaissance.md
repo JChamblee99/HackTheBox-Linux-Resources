@@ -7,7 +7,8 @@
  
 ## Port Scanning
 Nmap is a great tool for performing network recon, so obviously there are a lot of different ways you can use it.  
-Personally, I tend to use variations of 3 different scans: TCP SYN scan (-sS), version scan (-sV), and throwing everything at the wall (-A).
+Personally, I tend to use variations of 3 different scans: TCP SYN scan (-sS), version scan (-sV), and throwing everything at the wall (-A).  
+For more details, you can reference the [Nmap man page](https://linux.die.net/man/1/nmap) or the [Nmap SANS Cheat Sheet](https://assets.contentstack.io/v3/assets/blt36c2e63521272fdc/blte37ba962036d487b/5eb08aae26a7212f2db1c1da/NmapCheatSheetv1.1.pdf).
 
 The TCP SYN scan tends to be pretty quick to scan every port. You won't get much information on services, but getting open ports quickly can allow you to start other scanning and enumeration sooner.
 
