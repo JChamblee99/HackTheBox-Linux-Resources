@@ -1,5 +1,5 @@
-# HackTheBox Linux Resources
-`Getting into HTB can be difficult. Let's make it a little bit easier.`
+# Hack The Box Linux Resources
+`Getting into Hack The Box can be difficult. Let's make it a little bit easier.`
 
 When you start off on Hack The Box, you might not know where to begin;  
 my hope is that providing a basic set of tools, concepts, and methodologies  
